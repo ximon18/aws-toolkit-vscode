@@ -6,7 +6,7 @@
 import * as _ from 'lodash'
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { ScriptResource } from '../lambda/models/scriptResource'
+import { ScriptResource } from '../lambda/schemas/scriptResource'
 import { ext } from '../shared/extensionGlobals'
 
 export class ExtensionUtilities {

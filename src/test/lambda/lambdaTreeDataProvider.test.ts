@@ -7,7 +7,7 @@ import * as assert from 'assert'
 import * as AWS from 'aws-sdk'
 import * as vscode from 'vscode'
 import { RegionNode } from '../../lambda/explorer/regionNode'
-import { LambdaProvider } from '../../lambda/lambdaProvider'
+import { LambdaTreeDataProvider } from '../../lambda/lambdaTreeDataProvider'
 import { AwsContext, ContextChangeEventsArgs } from '../../shared/awsContext'
 import { AwsContextTreeCollection } from '../../shared/awsContextTreeCollection'
 import { RegionInfo } from '../../shared/regions/regionInfo'
@@ -69,7 +69,12 @@ describe('LambdaProvider', function(): void {
         const awsContextTreeCollection = new AwsContextTreeCollection()
         const resourceFetcher = new FakeResourceFetcher()
 
-        const lambdaProvider = new LambdaProvider(awsContext, awsContextTreeCollection, regionProvider, resourceFetcher)
+        const lambdaProvider = new LambdaTreeDataProvider(
+            awsContext,
+            awsContextTreeCollection,
+            regionProvider,
+            resourceFetcher
+        )
 
         const treeNodesPromise = lambdaProvider.getChildren()
 

@@ -25,7 +25,7 @@ import { RegionNode } from './explorer/regionNode'
 import { DefaultLambdaPolicyProvider, LambdaPolicyView } from './lambdaPolicy'
 import * as utils from './utils'
 
-export class LambdaProvider implements vscode.TreeDataProvider<AWSTreeNodeBase>, RefreshableAwsTreeProvider {
+export class LambdaTreeDataProvider implements vscode.TreeDataProvider<AWSTreeNodeBase>, RefreshableAwsTreeProvider {
     public viewProviderId: string = 'lambda'
     public readonly onDidChangeTreeData: vscode.Event<AWSTreeNodeBase | undefined>
     private readonly _onDidChangeTreeData: vscode.EventEmitter<AWSTreeNodeBase | undefined>
@@ -68,7 +68,7 @@ export class LambdaProvider implements vscode.TreeDataProvider<AWSTreeNodeBase>,
 
         vscode.commands.registerCommand(
             'aws.refreshLambdaProviderNode',
-            async (lambdaProvider: LambdaProvider, element: AWSTreeNodeBase) => {
+            async (lambdaProvider: LambdaTreeDataProvider, element: AWSTreeNodeBase) => {
                 lambdaProvider._onDidChangeTreeData.fire(element)
             }
         )

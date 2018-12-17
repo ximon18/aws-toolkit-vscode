@@ -20,6 +20,11 @@
             "type": "npm",
             "script": "lint",
             "problemMatcher": []
+        },
+        {
+            "type": "npm",
+            "script": "compile",
+            "problemMatcher": "$tsc"
         }
     ]
 }

@@ -18,7 +18,7 @@ import { FileResourceLocation, WebResourceLocation } from '../../shared/resource
 import { BaseTemplates } from '../../shared/templates/baseTemplates'
 import { sampleRequestManifestPath, sampleRequestPath } from '../constants'
 import { FunctionNode } from '../explorer/functionNode'
-import { SampleRequest } from '../models/sampleRequest'
+import { SampleRequest } from '../schemas/sampleRequest'
 import { LambdaTemplates } from '../templates/lambdaTemplates'
 import { getSelectedLambdaNode } from '../utils'
 

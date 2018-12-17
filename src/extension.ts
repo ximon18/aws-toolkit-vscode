@@ -9,7 +9,7 @@ import * as vscode from 'vscode'
 import * as nls from 'vscode-nls'
 
 import { RegionNode } from './lambda/explorer/regionNode'
-import { LambdaProvider } from './lambda/lambdaProvider'
+import { LambdaTreeDataProvider } from './lambda/lambdaTreeDataProvider'
 import { NodeDebugConfigurationProvider } from './lambda/local/debugConfigurationProvider'
 import { AWSClientBuilder } from './shared/awsClientBuilder'
 import { AwsContextTreeCollection } from './shared/awsContextTreeCollection'
@@ -64,11 +64,11 @@ export async function activate(context: vscode.ExtensionContext) {
         async (node?: RegionNode) => await ext.awsContextCommands.onCommandHideRegion(safeGet(node, x => x.regionCode))
     )
 
-    const providers = [
-        new LambdaProvider(awsContext, awsContextTrees, regionProvider, resourceFetcher)
+    const treeDataProviders = [
+        new LambdaTreeDataProvider(awsContext, awsContextTrees, regionProvider, resourceFetcher)
     ]
 
-    providers.forEach((p) => {
+    treeDataProviders.forEach((p) => {
         p.initialize()
         context.subscriptions.push(vscode.window.registerTreeDataProvider(p.viewProviderId, p))
     })
