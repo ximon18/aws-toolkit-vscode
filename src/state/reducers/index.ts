@@ -5,10 +5,3 @@
 
 'use strict'
 
-export interface ServiceModel {
-    name: string
-}
-
-export interface RootModel {
-    [service: string]: ServiceModel
-}
