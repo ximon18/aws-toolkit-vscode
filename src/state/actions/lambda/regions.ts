@@ -26,7 +26,7 @@ export interface FetchRegionsStart extends RegionsAction {
 }
 
 export interface FetchRegionsSuccess extends RegionsAction {
-    regions: immutable.List<string>
+    regions: immutable.Map<string, string>
 }
 
 export interface FetchRegionsFailure extends RegionsAction {
@@ -47,4 +47,47 @@ export interface FetchRegionSuccess extends RegionAction {
 
 export interface FetchRegionFailure extends RegionAction {
     message: string
+}
+
+export function fetchRegionsStart(): FetchRegionsStart {
+    return {
+        type: 'FETCH_REGIONS_START'
+    }
+}
+
+export function fetchRegionsSuccess(regions: immutable.Map<string, string>): FetchRegionsSuccess {
+    return {
+        type: 'FETCH_REGIONS_SUCCESS',
+        regions
+    }
+}
+
+export function fetchRegionsFailure(message: string): FetchRegionsFailure {
+    return {
+        type: 'FETCH_REGIONS_FAILURE',
+        message
+    }
+}
+
+export function fetchRegionStart(region: string): FetchRegionStart {
+    return {
+        type: 'FETCH_REGION_START',
+        region
+    }
+}
+
+export function fetchRegionSuccess(region: string, functions: immutable.List<string>): FetchRegionSuccess {
+    return {
+        type: 'FETCH_REGION_SUCCESS',
+        region,
+        functions
+    }
+}
+
+export function fetchRegionFailure(region: string, message: string): FetchRegionFailure {
+    return {
+        type: 'FETCH_REGION_FAILURE',
+        region,
+        message
+    }
 }
