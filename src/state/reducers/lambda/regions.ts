@@ -58,7 +58,7 @@ function getInitialRegionsState(): immutable.Map<string, any> {
     }) as immutable.Map<string, any>
 }
 
-export function region(
+function region(
     state: immutable.Map<string, any> = getInitialRegionState(),
     action: actions.RegionAction
 ): immutable.Map<string, any> {

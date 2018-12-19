@@ -6,76 +6,79 @@
 'use strict'
 
 import * as immutable from 'immutable'
-// import * as redux from 'redux'
-import * as actions from '../../actions/lambda/actions'
+import * as actions from '../../actions/lambda/functions'
 
-export function lambda(state: immutable.Map<string, any> = getInitialLambdaState(), action: actions.LambdaAction) {
+export function functions(
+    state: immutable.Map<string, any> = getInitialFunctionsState(),
+    action: actions.FunctionsAction | actions.FunctionAction
+) {
     switch (action.type) {
-        case 'FETCH_REGIONS_START':
+        case 'FETCH_FUNCTIONS_START':
             return state
-                .setIn([ 'info', 'fetching' ], true)
-                .setIn([ 'info', 'errorMessage' ], undefined)
-
-        case 'FETCH_REGIONS_SUCCESS':
-            const successAction = action as actions.FetchRegionsSuccess
-
-            state = state
-                .setIn([ 'info', 'fetching' ], false)
-                .setIn([ 'info', 'initialFetchComplete' ], true)
-                .setIn([ 'info', 'errorMessage' ], undefined)
-
-            for (const regionName of successAction.regions) {
-                const keyPath = ['regions', regionName]
-                state = state.setIn(keyPath, region(state.getIn(keyPath) as immutable.Map<string, any>, action))
-            }
-
-            for (const regionName of (state.get('regions') as immutable.Map<string, any>).keySeq()) {
-                if (!(regionName in successAction.regions)) {
-                    state = state.deleteIn([ 'regions', 'regionName' ])
-                }
-            }
+                .setIn(['info', 'fetching'], true)
+                .setIn(['info', 'fetchErrorMessage'], undefined)
+        case 'FETCH_FUNCTIONS_SUCCESS':
+            const successAction = action as actions.FetchFunctionsSuccess
 
             return state
-
-        case 'FETCH_REGIONS_FAILURE':
-            const failureAction = action as actions.FetchRegionsFailure
+                .setIn(['info', 'initialFetchComplete'], true)
+                .setIn(['info', 'fetching'], false)
+                .setIn(['info', 'fetchErrorMessage'], undefined)
+                .set('functions', successAction.functions)
+        case 'FETCH_FUNCTIONS_FAILURE':
+            const failureAction = action as actions.FetchFunctionsFailure
 
             return state
-                .setIn([ 'info', 'fetching' ], false)
-                .setIn([ 'info', 'initialFetchComplete' ], true)
-                .setIn([ 'info', 'errorMessage' ], failureAction.message)
+                .setIn(['info', 'initialFetchComplete'], true)
+                .setIn(['info', 'fetching'], false)
+                .setIn(['info', 'fetchErrorMessage'], failureAction.message)
+        case 'FETCH_FUNCTION_START':
+        case 'FETCH_FUNCTION_SUCCESS':
+        case 'FETCH_FUNCTION_FAILURE':
+            const functionAction = action as actions.FunctionAction
+            const keyPath = [ 'functions', functionAction.function ]
 
+            return state.setIn(
+                keyPath,
+                _function(state.getIn(keyPath) as immutable.Map<string, any>, functionAction)
+            )
         default:
             return state
     }
 }
 
-function getInitialLambdaState(): immutable.Map<string, any> {
+function getInitialFunctionsState(): immutable.Map<string, any> {
     return immutable.fromJS({
         info: {
             initialFetchComplete: false,
             fetching: false,
-            errorMessage: undefined
+            fetchErrorMessage: undefined
         },
-        regions: {}
-    }) as immutable.Map<string, any>
-}
-
-function region(state: immutable.Map<string, any> = getInitialRegionState(), action: LambdaAction) {
-    switch (action.type) {
-        default:
-            return state
-    }
-}
-
-function getInitialRegionState(): immutable.Map<string, any> {
-    return immutable.fromJS({
         functions: {}
     }) as immutable.Map<string, any>
 }
 
-function lambdaFunction(state: immutable.Map<string, any> = getInitialFunctionState(), action: LambdaAction) {
+function _function(
+    state: immutable.Map<string, any> = getInitialFunctionState(),
+    action: actions.FunctionAction
+): immutable.Map<string, any> {
     switch (action.type) {
+        case 'FETCH_FUNCTION_START':
+            return state
+                .setIn(['info', 'fetching'], true)
+                .setIn(['info', 'fetchErrorMessage'], undefined)
+        case 'FETCH_FUNCTION_SUCCESS':
+            return state
+                .setIn(['info', 'initialFetchComplete'], true)
+                .setIn(['info', 'fetching'], false)
+                .setIn(['info', 'fetchErrorMessage'], undefined)
+        case 'FETCH_FUNCTION_FAILURE':
+            const failureAction = action as actions.FetchFunctionFailure
+
+            return state
+                .setIn(['info', 'initialFetchComplete'], true)
+                .setIn(['info', 'fetching'], false)
+                .setIn(['info', 'fetchErrorMessage'], failureAction.message)
         default:
             return state
     }
@@ -83,6 +86,11 @@ function lambdaFunction(state: immutable.Map<string, any> = getInitialFunctionSt
 
 function getInitialFunctionState(): immutable.Map<string, any> {
     return immutable.fromJS({
-        name: undefined
+        info: {
+            initialFetchComplete: false,
+            fetching: false,
+            fetchErrorMessage: undefined
+        },
+        functions: []
     }) as immutable.Map<string, any>
 }

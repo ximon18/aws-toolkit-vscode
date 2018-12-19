@@ -5,3 +5,11 @@
 
 'use strict'
 
+import { combineReducers } from 'redux'
+import { functions } from './lambda/functions'
+import { regions } from './lambda/regions'
+
+export const rootReducer = combineReducers({
+    functions,
+    regions
+})

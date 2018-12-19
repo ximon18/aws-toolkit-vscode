@@ -5,11 +5,27 @@
 
 'use strict'
 
-import * as redux from 'redux'
-import { LambdaActionType } from './lambda/actions'
+import {
+    FunctionAction,
+    FunctionActionType,
+    FunctionsAction,
+    FunctionsActionType
+} from './lambda/functions'
+import {
+    RegionAction,
+    RegionActionType,
+    RegionsAction,
+    RegionsActionType
+} from './lambda/regions'
 
-type ActionType = LambdaActionType
+export type ToolkitAction =
+    FunctionAction |
+    FunctionsAction |
+    RegionAction |
+    RegionsAction
 
-export interface ToolkitAction<T> extends redux.Action<ActionType> {
-
-}
+export type ToolkitActionType =
+    FunctionActionType |
+    FunctionsActionType |
+    RegionActionType |
+    RegionsActionType
