@@ -12,7 +12,7 @@ import * as immutable from 'immutable'
 import * as os from 'os'
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { SamCliInitArgs } from '../../shared/sam/cli/samCliInit'
+import { SamInitArgs } from '../../shared/sam/samCli'
 import * as lambdaRuntime from '../models/samLambdaRuntime'
 import { MultiStepWizard, WizardStep } from '../wizards/multiStepWizard'
 
@@ -62,7 +62,7 @@ class DefaultCreateNewSamAppWizardContext implements CreateNewSamAppWizardContex
     }
 }
 
-export class CreateNewSamAppWizard extends MultiStepWizard<SamCliInitArgs> {
+export class CreateNewSamAppWizard extends MultiStepWizard<SamInitArgs> {
     private runtime?: lambdaRuntime.SamLambdaRuntime
     private location?: vscode.Uri
     private name?: string
@@ -77,7 +77,7 @@ export class CreateNewSamAppWizard extends MultiStepWizard<SamCliInitArgs> {
         return this.RUNTIME
     }
 
-    protected getResult(): SamCliInitArgs | undefined {
+    protected getResult(): SamInitArgs | undefined {
         if (!this.runtime || !this.location || !this.name) {
             return undefined
         }

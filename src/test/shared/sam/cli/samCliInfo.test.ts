@@ -6,41 +6,69 @@
 'use strict'
 
 import * as assert from 'assert'
-import { SamCliInfoInvocation, SamCliInfoResponse } from '../../../../shared/sam/cli/samCliInfo'
+import { SpawnOptions } from 'child_process'
+import { SamCliProcessInvoker } from '../../../../shared/sam/cli/samCliInvoker'
+import { DefaultSamCliInvoker, SamCliInvoker } from '../../../../shared/sam/samCli'
+import { ChildProcessResult } from '../../../../shared/utilities/childProcess'
 
-describe('SamInfoCliCommand', async () => {
+describe('SamCliInfoCommand', async () => {
+    class TestProcessInvoker implements SamCliProcessInvoker {
+        private readonly _result: ChildProcessResult
 
-    class TestSamCliInfoCommand extends SamCliInfoInvocation {
-        public convertOutput(text: string): SamCliInfoResponse | undefined {
-            return super.convertOutput(text)
+        public constructor(result: Partial<ChildProcessResult>) {
+            this._result = {
+                error: result.error || undefined,
+                exitCode: result.exitCode || 0,
+                stderr: result.stderr || '',
+                stdout: result.stdout || ''
+            }
+        }
+
+        public invoke(options: SpawnOptions, ...args: string[]): Promise<ChildProcessResult>
+        public invoke(...args: string[]): Promise<ChildProcessResult>
+        public async invoke(first: SpawnOptions | string, ...rest: string[]): Promise<ChildProcessResult> {
+            return this._result
         }
     }
-
     it('converts sam info response to SamCliInfoResponse', async () => {
-        const response: SamCliInfoResponse | undefined = new TestSamCliInfoCommand()
-            .convertOutput('{"version": "1.2.3"}')
+        const invoker: SamCliInvoker = new DefaultSamCliInvoker(
+            new TestProcessInvoker({
+                stdout: '{"version": "1.2.3"}'
+            })
+        )
+        const response = await invoker.info()
 
         assert.ok(response)
         assert.strictEqual(response!.version, '1.2.3')
     })
 
     it('converts sam info response without version to SamCliInfoResponse', async () => {
-        const response: SamCliInfoResponse | undefined = new TestSamCliInfoCommand()
-            .convertOutput('{}')
+        const invoker: SamCliInvoker = new DefaultSamCliInvoker(
+            new TestProcessInvoker({
+                stdout: '{}'
+            })
+        )
+        const response = await invoker.info()
 
         assert.ok(response)
         assert.strictEqual(response!.version, undefined)
     })
 
     it('converts non-response to undefined', async () => {
-        [
+        const rawResponses = [
             'qwerty',
             '{"version": "1.2.3"} you have no new email messages'
-        ].forEach(output => {
-            const response: SamCliInfoResponse | undefined = new TestSamCliInfoCommand()
-                .convertOutput(output)
+        ]
 
-            assert.strictEqual(response, undefined, `Expected text to not parse: ${output}`)
-        })
+        for (const rawResponse of rawResponses) {
+            const invoker: SamCliInvoker = new DefaultSamCliInvoker(
+                new TestProcessInvoker({
+                    stdout: rawResponse
+                })
+            )
+            const response = await invoker.info()
+
+            assert.strictEqual(response, undefined, `Expected text to not parse: ${rawResponse}`)
+        }
     })
 })

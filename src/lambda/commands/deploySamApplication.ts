@@ -10,18 +10,16 @@ import * as path from 'path'
 import * as vscode from 'vscode'
 import * as nls from 'vscode-nls'
 import { mkdtemp } from '../../shared/filesystemUtilities'
-import { SamCliDeployInvocation } from '../../shared/sam/cli/samCliDeploy'
-import { DefaultSamCliProcessInvoker, SamCliProcessInvoker } from '../../shared/sam/cli/samCliInvoker'
-import { SamCliPackageInvocation } from '../../shared/sam/cli/samCliPackage'
+import { DefaultSamCliInvoker, SamCliInvoker } from '../../shared/sam/samCli'
 import { SamDeployWizard, SamDeployWizardResponse } from '../wizards/samDeployWizard'
 
 const localize = nls.loadMessageBundle()
 
 export async function deploySamApplication({
-    invoker = new DefaultSamCliProcessInvoker(),
+    invoker = new DefaultSamCliInvoker(),
     ...restParams
 }: {
-    invoker?: SamCliProcessInvoker
+    invoker?: SamCliInvoker
     outputChannel: vscode.OutputChannel
 }) {
     const args: SamDeployWizardResponse | undefined = await new SamDeployWizard().run()
@@ -35,21 +33,23 @@ export async function deploySamApplication({
     const outputTemplatePath = path.join(tempFolder, 'template.yaml')
     let stage = 'packaging'
     try {
-        const packageInvocation = new SamCliPackageInvocation(template.fsPath, outputTemplatePath, s3Bucket, invoker)
         restParams.outputChannel.show(true)
-        // TODO: Add nls support
+        // TODO: Localize
         restParams.outputChannel.appendLine(`Packaging SAM Application to S3 Bucket: ${s3Bucket}`)
-        await packageInvocation.execute()
+        await invoker.package(
+            template.fsPath,
+            outputTemplatePath,
+            s3Bucket
+        )
 
         stage = 'deploying'
-        const deployInvocation = new SamCliDeployInvocation(outputTemplatePath, stackName, invoker)
         // Deploying can take a very long time for Python Lambda's with native dependencies so user needs feedback
         restParams.outputChannel.appendLine(localize(
           'AWS.samcli.deploy.stackName.initiated',
           'Deploying {0} stack...',
           stackName
         ))
-        await deployInvocation.execute()
+        await invoker.deploy(outputTemplatePath, stackName)
         // TODO: Add nls support
         const msg = `Successfully deployed SAM Application to CloudFormation Stack: ${stackName}`
         restParams.outputChannel.appendLine(msg)

@@ -6,7 +6,7 @@
 'use strict'
 
 import * as semver from 'semver'
-import { SamCliInfoInvocation } from './samCliInfo'
+import { DefaultSamCliInvoker, SamCliInvoker } from '../samCli'
 
 export enum SamCliVersionValidation {
     Valid = 'Valid',
@@ -47,10 +47,12 @@ export interface SamCliVersionProvider {
 }
 
 export class DefaultSamCliVersionProvider implements SamCliVersionProvider {
-    public async getSamCliVersion(): Promise<string> {
-        const command: SamCliInfoInvocation = new SamCliInfoInvocation()
-        const response = await command.execute()
+    public constructor(
+        private readonly invoker: SamCliInvoker = new DefaultSamCliInvoker()
+    ) {
+    }
 
-        return response.version
+    public async getSamCliVersion(): Promise<string> {
+        return (await this.invoker.info()).version
     }
 }

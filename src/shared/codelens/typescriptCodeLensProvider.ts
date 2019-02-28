@@ -19,14 +19,7 @@ import { CloudFormation } from '../cloudformation/cloudformation'
 import { mkdir, writeFile } from '../filesystem'
 import * as filesystemUtilities from '../filesystemUtilities'
 import { LambdaHandlerCandidate } from '../lambdaHandlerSearch'
-import { SamCliBuildInvocation } from '../sam/cli/samCliBuild'
-import {
-    DefaultSamCliProcessInvoker,
-    DefaultSamCliTaskInvoker,
-    SamCliProcessInvoker,
-    SamCliTaskInvoker
-} from '../sam/cli/samCliInvoker'
-import { SamCliLocalInvokeInvocation } from '../sam/cli/samCliLocalInvoke'
+import { DefaultSamCliInvoker, SamCliInvoker } from '../sam/samCli'
 import { SettingsConfiguration } from '../settingsConfiguration'
 import { SamTemplateGenerator } from '../templates/sam/samTemplateGenerator'
 import { TypescriptLambdaHandlerSearch } from '../typescriptLambdaHandlerSearch'
@@ -148,8 +141,7 @@ export class TypescriptCodeLensProvider implements vscode.CodeLensProvider {
     public static initialize(
         configuration: SettingsConfiguration,
         toolkitOutputChannel: vscode.OutputChannel,
-        processInvoker: SamCliProcessInvoker = new DefaultSamCliProcessInvoker(),
-        taskInvoker: SamCliTaskInvoker = new DefaultSamCliTaskInvoker()
+        invoker: SamCliInvoker = new DefaultSamCliInvoker()
     ): void {
         vscode.commands.registerCommand(
             'aws.lambda.local.invoke',
@@ -167,8 +159,7 @@ export class TypescriptCodeLensProvider implements vscode.CodeLensProvider {
                     debugPort,
                     'nodejs8.10',
                     toolkitOutputChannel,
-                    processInvoker,
-                    taskInvoker
+                    invoker
                 )
 
                 await localLambdaRunner.run()
@@ -197,8 +188,7 @@ class LocalLambdaRunner {
         debugPort: number | undefined,
         private readonly runtime: string,
         private readonly outputChannel: vscode.OutputChannel,
-        private readonly processInvoker: SamCliProcessInvoker,
-        private readonly taskInvoker: SamCliTaskInvoker
+        private readonly invoker: SamCliInvoker
     ) {
         if (localInvokeArgs.debug && !debugPort) {
             throw new Error('Debug port must be provided when launching in debug mode')
@@ -350,12 +340,11 @@ class LocalLambdaRunner {
 
         const samBuildOutputFolder = path.join(await this.getBaseBuildFolder(), 'output')
 
-        await new SamCliBuildInvocation(
+        await this.invoker.build(
             samBuildOutputFolder,
             rootCodeFolder,
-            inputTemplatePath,
-            this.processInvoker
-        ).execute()
+            inputTemplatePath
+        )
 
         this.outputChannel.appendLine(
             localize(
@@ -391,16 +380,13 @@ class LocalLambdaRunner {
             JSON.stringify(this.getEnvironmentVariables(config))
         )
 
-        const command = new SamCliLocalInvokeInvocation(
+        await this.invoker.localInvoke(
             LocalLambdaRunner.TEMPLATE_RESOURCE_NAME,
             samTemplatePath,
             eventPath,
             environmentVariablePath,
-            (!!this._debugPort) ? this._debugPort.toString() : undefined,
-            this.taskInvoker
+            (!!this._debugPort) ? this._debugPort.toString() : undefined
         )
-
-        await command.execute()
 
         if (this.localInvokeArgs.debug) {
             this.outputChannel.appendLine(

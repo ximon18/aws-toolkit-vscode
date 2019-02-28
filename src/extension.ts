@@ -26,6 +26,7 @@ import { safeGet } from './shared/extensionUtilities'
 import { DefaultRegionProvider } from './shared/regions/defaultRegionProvider'
 import * as SamCliDetection from './shared/sam/cli/samCliDetection'
 import { SamCliVersionValidator } from './shared/sam/cli/samCliVersionValidator'
+import { DefaultSamCliInvoker } from './shared/sam/samCli'
 import { DefaultSettingsConfiguration, SettingsConfiguration } from './shared/settingsConfiguration'
 import { AWSStatusBar } from './shared/statusBar'
 import { ExtensionDisposableFiles } from './shared/utilities/disposableFiles'
@@ -89,7 +90,10 @@ export async function activate(context: vscode.ExtensionContext) {
     ]
 
     providers.forEach((p) => {
-        p.initialize(context)
+        p.initialize({
+            ...context,
+            invoker: new DefaultSamCliInvoker()
+        })
         context.subscriptions.push(vscode.window.registerTreeDataProvider(p.viewProviderId, p))
     })
 

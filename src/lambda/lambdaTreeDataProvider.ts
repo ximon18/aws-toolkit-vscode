@@ -14,6 +14,7 @@ import { AwsContextTreeCollection } from '../shared/awsContextTreeCollection'
 import { ext } from '../shared/extensionGlobals'
 import { RegionProvider } from '../shared/regions/regionProvider'
 import { ResourceFetcher } from '../shared/resourceFetcher'
+import { SamCliInvoker } from '../shared/sam/samCli'
 import { AWSCommandTreeNode } from '../shared/treeview/awsCommandTreeNode'
 import { AWSTreeNodeBase } from '../shared/treeview/awsTreeNodeBase'
 import { RefreshableAwsTreeProvider } from '../shared/treeview/awsTreeProvider'
@@ -54,7 +55,11 @@ export class LambdaTreeDataProvider implements vscode.TreeDataProvider<AWSTreeNo
         this.regionNodes = new Map<string, RegionNode>()
     }
 
-    public initialize(context: Pick<vscode.ExtensionContext, 'globalState'>): void {
+    public initialize(
+        context: Pick<vscode.ExtensionContext, 'globalState'> & {
+            invoker: SamCliInvoker
+        }
+    ): void {
         vscode.commands.registerCommand('aws.refreshAwsExplorer', async () => this.refresh())
         vscode.commands.registerCommand(
             'aws.lambda.createNewSamApp',

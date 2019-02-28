@@ -10,7 +10,7 @@ const localize = nls.loadMessageBundle()
 
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { SamCliInitArgs, SamCliInitInvocation } from '../../shared/sam/cli/samCliInit'
+import { SamCliInvoker, SamInitArgs } from '../../shared/sam/samCli'
 import { getMainSourceFileUri } from '../utilities/getMainSourceFile'
 import { CreateNewSamAppWizard } from '../wizards/samInitWizard'
 
@@ -41,14 +41,17 @@ export async function resumeCreateNewSamApp(context: Pick<vscode.ExtensionContex
     }
 }
 
-export async function createNewSamApp(context: Pick<vscode.ExtensionContext, 'globalState'>): Promise<void> {
+export async function createNewSamApp(
+    context: Pick<vscode.ExtensionContext, 'globalState'> & {
+        invoker: SamCliInvoker
+    }
+): Promise<void> {
     const config = await new CreateNewSamAppWizard().run()
     if (!config) {
         return
     }
 
-    const invocation = new SamCliInitInvocation(config)
-    await invocation.execute()
+    await context.invoker.init(config)
 
     const uri = await getMainUri(config)
     if (!uri) {
@@ -68,7 +71,7 @@ export async function createNewSamApp(context: Pick<vscode.ExtensionContext, 'gl
     }
 }
 
-async function getMainUri(config: Pick<SamCliInitArgs, 'location' | 'name'>): Promise<vscode.Uri | undefined> {
+async function getMainUri(config: Pick<SamInitArgs, 'location' | 'name'>): Promise<vscode.Uri | undefined> {
     try {
         return await getMainSourceFileUri({
             root: vscode.Uri.file(path.join(config.location.fsPath, config.name))
