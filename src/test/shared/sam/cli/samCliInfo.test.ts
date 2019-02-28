@@ -7,8 +7,7 @@
 
 import * as assert from 'assert'
 import { SpawnOptions } from 'child_process'
-import { SamCliProcessInvoker } from '../../../../shared/sam/cli/samCliInvoker'
-import { DefaultSamCliInvoker, SamCliInvoker } from '../../../../shared/sam/samCli'
+import { DefaultSamCliInvoker, SamCliInvoker, SamCliProcessInvoker } from '../../../../shared/sam/cli'
 import { ChildProcessResult } from '../../../../shared/utilities/childProcess'
 
 describe('SamCliInfoCommand', async () => {

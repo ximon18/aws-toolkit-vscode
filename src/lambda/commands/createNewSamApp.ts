@@ -10,7 +10,7 @@ const localize = nls.loadMessageBundle()
 
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { SamCliInvoker, SamInitArgs } from '../../shared/sam/samCli'
+import { SamCliInvoker, SamInitArgs } from '../../shared/sam/cli'
 import { getMainSourceFileUri } from '../utilities/getMainSourceFile'
 import { CreateNewSamAppWizard } from '../wizards/samInitWizard'
 

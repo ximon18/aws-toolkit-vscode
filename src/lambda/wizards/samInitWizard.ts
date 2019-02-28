@@ -12,7 +12,7 @@ import * as immutable from 'immutable'
 import * as os from 'os'
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { SamInitArgs } from '../../shared/sam/samCli'
+import { SamInitArgs } from '../../shared/sam/cli'
 import * as lambdaRuntime from '../models/samLambdaRuntime'
 import { MultiStepWizard, WizardStep } from '../wizards/multiStepWizard'
 

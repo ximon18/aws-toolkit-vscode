@@ -6,7 +6,7 @@
 'use strict'
 
 import { SamCliConfiguration } from '../../../../shared/sam/cli/samCliConfiguration'
-import { DefaultSamCliProcessInvoker } from '../../../../shared/sam/cli/samCliInvoker'
+import { DefaultSamCliProcessInvoker } from '../../../../shared/sam/cli'
 import { assertRejects } from '../../utilities/assertUtils'
 
 describe('DefaultSamCliInvoker', async () => {

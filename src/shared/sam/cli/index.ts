@@ -5,16 +5,15 @@
 
 'use strict'
 
+import { SpawnOptions } from 'child_process'
 import * as vscode from 'vscode'
-import { SamLambdaRuntime } from '../../lambda/models/samLambdaRuntime'
-import { fileExists } from '../filesystemUtilities'
-import { ChildProcessResult } from '../utilities/childProcess'
-import {
-    DefaultSamCliProcessInvoker,
-    DefaultSamCliTaskInvoker,
-    SamCliProcessInvoker,
-    SamCliTaskInvoker
-} from './cli/samCliInvoker'
+import { SamLambdaRuntime } from '../../../lambda/models/samLambdaRuntime'
+import { extensionSettingsPrefix } from '../../constants'
+import { fileExists } from '../../filesystemUtilities'
+import { DefaultSettingsConfiguration } from '../../settingsConfiguration'
+import { ChildProcess, ChildProcessResult } from '../../utilities/childProcess'
+import { DefaultSamCliConfiguration, SamCliConfiguration } from './samCliConfiguration'
+import { DefaultSamCliLocationProvider } from './samCliLocator'
 
 export const MINIMUM_SAM_CLI_VERSION_INCLUSIVE = '0.7.0'
 export const MAXIMUM_SAM_CLI_VERSION_EXCLUSIVE = '0.16.0'
@@ -206,5 +205,44 @@ export class DefaultSamCliInvoker {
 
         const message = error && error.message ? error.message : stderr || stdout
         throw new Error(`sam ${command} encountered an error: ${message}`)
+    }
+}
+
+export interface SamCliProcessInvoker {
+    invoke(options: SpawnOptions, ...args: string[]): Promise<ChildProcessResult>
+    invoke(...args: string[]): Promise<ChildProcessResult>
+}
+
+export interface SamCliTaskInvoker {
+    invoke(task: vscode.Task): Promise<vscode.TaskExecution>
+}
+
+export class DefaultSamCliProcessInvoker implements SamCliProcessInvoker {
+    public constructor(private readonly config: SamCliConfiguration = new DefaultSamCliConfiguration(
+        new DefaultSettingsConfiguration(extensionSettingsPrefix),
+        new DefaultSamCliLocationProvider()
+    )) {
+    }
+
+    public invoke(options: SpawnOptions, ...args: string[]): Promise<ChildProcessResult>
+    public invoke(...args: string[]): Promise<ChildProcessResult>
+    public async invoke(first: SpawnOptions | string, ...rest: string[]): Promise<ChildProcessResult> {
+        const args = typeof first === 'string' ? [ first, ...rest ] : rest
+        const options: SpawnOptions | undefined = typeof first === 'string' ? undefined : first
+
+        const samCliLocation = this.config.getSamCliLocation()
+        if (!samCliLocation) {
+            throw new Error('SAM CLI location not configured')
+        }
+
+        const childProcess: ChildProcess = new ChildProcess(samCliLocation, options, ...args)
+
+        return await childProcess.run()
+    }
+}
+
+export class DefaultSamCliTaskInvoker implements SamCliTaskInvoker {
+    public async invoke(task: vscode.Task): Promise<vscode.TaskExecution> {
+        return await vscode.tasks.executeTask(task)
     }
 }

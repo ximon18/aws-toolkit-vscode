@@ -10,7 +10,7 @@ import * as path from 'path'
 import * as vscode from 'vscode'
 import * as nls from 'vscode-nls'
 import { mkdtemp } from '../../shared/filesystemUtilities'
-import { DefaultSamCliInvoker, SamCliInvoker } from '../../shared/sam/samCli'
+import { DefaultSamCliInvoker, SamCliInvoker } from '../../shared/sam/cli'
 import { SamDeployWizard, SamDeployWizardResponse } from '../wizards/samDeployWizard'
 
 const localize = nls.loadMessageBundle()
