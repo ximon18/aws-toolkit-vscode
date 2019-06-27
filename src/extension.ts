@@ -46,8 +46,9 @@ import { registerCommand } from './shared/telemetry/telemetryUtils'
 import { ExtensionDisposableFiles } from './shared/utilities/disposableFiles'
 import { PromiseSharer } from './shared/utilities/promiseUtilities'
 import { getChannelLogger } from './shared/utilities/vsCodeUtils'
+import { TestService } from './integrationTest/contracts/testService'
 
-export async function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext): Promise<TestService> {
 
     const env = process.env as EnvironmentVariables
     if (!!env.VSCODE_NLS_CONFIG) {
@@ -206,6 +207,10 @@ export async function activate(context: vscode.ExtensionContext) {
             error as Error
         )
         throw error
+    }
+
+    return {
+        greeting: 'Hello, World!'
     }
 }
 
