@@ -8,6 +8,7 @@
 import * as vscode from 'vscode'
 import * as nls from 'vscode-nls'
 
+import { TestService } from './integrationTest/contracts/testService'
 import { resumeCreateNewSamApp } from './lambda/commands/createNewSamApp'
 import { SamParameterCompletionItemProvider } from './lambda/config/samParameterCompletionItemProvider'
 import { RegionNode } from './lambda/explorer/regionNode'
@@ -46,7 +47,6 @@ import { registerCommand } from './shared/telemetry/telemetryUtils'
 import { ExtensionDisposableFiles } from './shared/utilities/disposableFiles'
 import { PromiseSharer } from './shared/utilities/promiseUtilities'
 import { getChannelLogger } from './shared/utilities/vsCodeUtils'
-import { TestService } from './integrationTest/contracts/testService'
 
 export async function activate(context: vscode.ExtensionContext): Promise<TestService> {
 

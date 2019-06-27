@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+'use strict'
+
 export interface TestService {
-    greeting: string
+    readonly greeting: string
 }

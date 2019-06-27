@@ -8,6 +8,7 @@
 import * as assert from 'assert'
 import * as path from 'path'
 import * as vscode from 'vscode'
+import { Datum } from '../shared/telemetry/telemetryTypes'
 import { TestService } from './contracts/testService'
 
 const SECOND = 1000
@@ -30,27 +31,46 @@ describe('Proof of Concept', async () => {
     })
 
     it('invokes the run code lens', async function() {
-        this.timeout(TIMEOUT)
+        this.timeout(TIMEOUT * 3)
 
         const extension: vscode.Extension<TestService> | undefined =
             vscode.extensions.getExtension('amazonwebservices.aws-toolkit-vscode')
         assert.ok(extension)
         await extension!.activate()
 
-        const folderPath = path.join('C:\\Users', 'pirocchi', 'Desktop', 'node', '10.x')
-        const folderUri = vscode.Uri.file(folderPath)
+        const workspaceFolders = vscode.workspace.workspaceFolders
+        assert.ok(workspaceFolders)
+        assert.strictEqual(workspaceFolders!.length, 1)
 
-        const result = vscode.workspace.updateWorkspaceFolders(0, 0, { uri: folderUri })
-        assert.ok(result, `Could not add the folder ${folderUri.fsPath} to the workspace.`)
-        const promise = new Promise<vscode.WorkspaceFoldersChangeEvent>((resolve, reject) => {
-            vscode.workspace.onDidChangeWorkspaceFolders(resolve)
-        })
-        const event = await promise
-
-        const documentPath = path.join(folderPath, 'app1', 'hello-world', 'app.js')
+        const folderUri = workspaceFolders![0].uri
+        const documentPath = path.join(folderUri.fsPath, 'app1', 'hello-world', 'app.js')
         const documentUri = vscode.Uri.file(documentPath)
-        const codeLensesPromise = vscode.commands.executeCommand('vscode.executeCodeLensProvider', documentUri)
+        const document = await vscode.workspace.openTextDocument(documentUri)
+
+        const codeLensesPromise: Thenable<vscode.CodeLens[] | undefined> =
+            vscode.commands.executeCommand('vscode.executeCodeLensProvider', document.uri)
         const codeLenses = await codeLensesPromise
-        assert.fail(String(codeLenses))
+        assert.ok(codeLenses)
+        assert.strictEqual(codeLenses!.length, 3)
+
+        const [ runCodeLens, debugCodeLens, configureCodeLens ] = codeLenses!
+
+        assert.ok(runCodeLens.command)
+        assert.ok(runCodeLens.command!.arguments)
+        const runResult: { datum: Datum } | undefined = await vscode.commands.executeCommand(
+            runCodeLens.command!.command,
+            ...runCodeLens.command!.arguments!
+        )
+
+        assert.ok(runResult)
+        const { datum } = runResult!
+        assert.strictEqual(datum.name, 'invokelocal')
+        assert.strictEqual(datum.value, 1)
+        assert.strictEqual(datum.unit, 'Count')
+
+        assert.ok(datum.metadata)
+        const metadata = datum.metadata!
+        assert.strictEqual(metadata.get('runtime'), 'nodejs10.x')
+        assert.strictEqual(metadata.get('debug'), 'false')
     })
 })
