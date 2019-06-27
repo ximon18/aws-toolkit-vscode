@@ -56,10 +56,11 @@ describe('Proof of Concept', async () => {
         const [ runCodeLens, debugCodeLens, configureCodeLens ] = codeLenses!
 
         assert.ok(runCodeLens.command)
-        assert.ok(runCodeLens.command!.arguments)
+        const command = runCodeLens.command!
+        assert.ok(command.arguments)
         const runResult: { datum: Datum } | undefined = await vscode.commands.executeCommand(
-            runCodeLens.command!.command,
-            ...runCodeLens.command!.arguments!
+            command.command,
+            command.arguments!
         )
 
         assert.ok(runResult)
