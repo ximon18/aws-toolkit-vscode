@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import * as path from 'path'
 import { NpmPackage } from './npmPackage'
 
 export const extensionSettingsPrefix: string = 'aws'
@@ -31,5 +32,5 @@ export const samInitDocUrl: string = 'https://docs.aws.amazon.com/toolkit-for-vs
 export const samDeployDocUrl: string =
     'https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/deploy-serverless-app.html'
 
-const npmPackage = () => require('../../../package.json') as NpmPackage
+const npmPackage = () => require(path.join(path.dirname(__dirname), 'package.json')) as NpmPackage
 export const pluginVersion = npmPackage().version

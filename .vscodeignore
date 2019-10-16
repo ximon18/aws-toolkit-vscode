@@ -19,5 +19,6 @@ test-scripts/**
 coverconfig.json
 Dockerfile
 tsconfig.json
+webpack.config.js
 tslint.json
 codebuild-image-buildspec.yml
